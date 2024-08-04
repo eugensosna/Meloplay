@@ -73,7 +73,7 @@ class Themes {
   static ThemeColor getTheme() {
     final Box<dynamic> box = Hive.box(HiveBox.boxName);
     final String? themeName = box.get(HiveBox.themeKey) as String?;
-    return getThemeFromKey(themeName ?? 'Purple');
+    return getThemeFromKey(themeName ?? 'Gray');
   }
 }
 
