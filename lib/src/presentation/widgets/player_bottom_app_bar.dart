@@ -6,6 +6,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 
 import 'package:meloplay/src/bloc/player/player_bloc.dart' as bloc;
+
 import 'package:meloplay/src/bloc/theme/theme_bloc.dart';
 import 'package:meloplay/src/core/di/service_locator.dart';
 import 'package:meloplay/src/core/router/app_router.dart';
@@ -29,6 +30,7 @@ class _PlayerBottomAppBarState extends State<PlayerBottomAppBar> {
   final player = sl<MusicPlayer>();
   bool isPlaying = false;
   bool isExpanded = false;
+  double currentSpeed = 1.0;
 
   List<SongModel> playlist = [];
 
@@ -253,6 +255,7 @@ class _PlayerBottomAppBarState extends State<PlayerBottomAppBar> {
                       iconSize: 40,
                       tooltip: 'Next',
                     ),
+                    _buildSpeedUpButton(context)
                   ],
                 ),
               ],
@@ -305,7 +308,29 @@ class _PlayerBottomAppBarState extends State<PlayerBottomAppBar> {
       ],
     );
   }
+  
+  IconButton _buildSpeedUpButton(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        var newSpeed = currentSpeed + 0.25;
+        if (newSpeed > 1.5) {
+          newSpeed = 1.0;
+        }
+        currentSpeed = newSpeed;
+        context.read<bloc.PlayerBloc>().add(bloc.PlayerSetSpeed(newSpeed));
+        //context.read<PlayerBloc>().add(PlayerNext());
+      },
+      icon: const Icon(
+        Icons.speed,
+        color: Colors.white,
+      ),
+      iconSize: 40,
+      tooltip: 'Next',
+    );
+  }
 }
+
+
 
 class SwipeSong extends StatefulWidget {
   const SwipeSong({
@@ -323,6 +348,7 @@ class SwipeSong extends StatefulWidget {
 
 class _SwipeSongState extends State<SwipeSong> {
   late PageController pageController;
+  double currentSpeed = 1.0;
 
   @override
   void initState() {
