@@ -24,8 +24,8 @@ dependencies:
     on_audio_query: ^2.9.0 # get songs from device
     package_info_plus: ^8.0.0 # get app info
     permission_handler: ^11.3.1 # get permission
-    rxdart: ^0.27.7 # stream
-    share_plus: ^9.0.0 # share song
+    rxdart: ^0.28.0 # stream
+    share_plus: ^10.0.0 # share song
     url_launcher: ^6.2.6 # open url
 
 dev_dependencies:

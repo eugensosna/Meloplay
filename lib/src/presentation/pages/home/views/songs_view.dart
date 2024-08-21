@@ -121,6 +121,9 @@ class _SongsViewState extends State<SongsView>
                                   ],
                                 ),
                                 onTap: () {
+                                  if (songs.length == 0) {
+                                    return;
+                                  }
                                   // enable shuffle
                                   context.read<PlayerBloc>().add(
                                         PlayerSetShuffleModeEnabled(true),

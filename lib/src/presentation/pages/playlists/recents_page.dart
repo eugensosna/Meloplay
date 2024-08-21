@@ -1,13 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:meloplay/src/bloc/home/home_bloc.dart';
 
 import 'package:meloplay/src/bloc/recents/recents_bloc.dart';
 import 'package:meloplay/src/core/di/service_locator.dart';
 import 'package:meloplay/src/core/theme/themes.dart';
 import 'package:meloplay/src/data/repositories/player_repository.dart';
+import 'package:meloplay/src/data/repositories/song_repository.dart';
 import 'package:meloplay/src/presentation/widgets/player_bottom_app_bar.dart';
 import 'package:meloplay/src/presentation/widgets/song_list_tile.dart';
+import 'package:on_audio_query/on_audio_query.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class RecentsPage extends StatefulWidget {
   const RecentsPage({super.key});
@@ -18,6 +24,7 @@ class RecentsPage extends StatefulWidget {
 
 class _RecentsPageState extends State<RecentsPage> {
   final player = sl<MusicPlayer>();
+  List<SongModel> listRecent = [];
 
   @override
   void initState() {
@@ -28,6 +35,7 @@ class _RecentsPageState extends State<RecentsPage> {
 
   @override
   Widget build(BuildContext context) {
+    listRecent.clear();
     return Scaffold(
       // current song, play/pause button, song progress bar, song queue button
       bottomNavigationBar: const PlayerBottomAppBar(),
@@ -36,6 +44,47 @@ class _RecentsPageState extends State<RecentsPage> {
         backgroundColor: Themes.getTheme().primaryColor,
         elevation: 0,
         title: const Text('Recents'),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                for (var song in listRecent) {
+                  final file = File(song.data);
+                  try {
+                    // ask for permission to manage external storage if not granted
+                    if (!await Permission.manageExternalStorage.isGranted) {
+                      final status =
+                          await Permission.manageExternalStorage.request();
+
+                      if (status.isGranted) {
+                        debugPrint('Permission granted');
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Permission denied',
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        }
+                      }
+                    }
+                    await file.delete();
+                  } catch (e) {
+                    // debugPrint('Failed to delete ${song.title}');
+                  }
+// ll
+                }
+
+                // context.read<HomeBloc>().add(GetSongsEvent());
+                showMessage("Deleting complete");
+                if (context.mounted) {
+                  context.read<RecentsBloc>().add(FetchRecents());
+                }
+              },
+              icon: const Icon(Icons.delete_sharp))
+        ],
       ),
       body: Ink(
         height: double.infinity,
@@ -54,6 +103,7 @@ class _RecentsPageState extends State<RecentsPage> {
               buildWhen: (_, current) => current is RecentsLoaded,
               builder: (context, state) {
                 if (state is RecentsLoaded) {
+                  listRecent = state.songs.toList();
                   return _buildBody(state);
                 } else {
                   return const SizedBox();
@@ -82,5 +132,10 @@ class _RecentsPageState extends State<RecentsPage> {
         );
       },
     );
+  }
+
+  showMessage(String message) async {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 }
