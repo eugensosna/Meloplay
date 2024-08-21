@@ -27,6 +27,7 @@ class PlayerPage extends StatefulWidget {
 class _PlayerPageState extends State<PlayerPage> {
   final player = sl<MusicPlayer>();
   SequenceState? sequence;
+  double currentSpeed = 1.0;
 
   @override
   void initState() {
@@ -371,6 +372,8 @@ class _PlayerPageState extends State<PlayerPage> {
                           _buildNextButton(context),
                           // repeat button
                           _buildRepeatButton(),
+                          //change speed play
+                          _buildSpeedUpButton(context),
                         ],
                       ),
                     ],
@@ -462,6 +465,26 @@ class _PlayerPageState extends State<PlayerPage> {
       },
       icon: const Icon(
         Icons.skip_next_outlined,
+        color: Colors.white,
+      ),
+      iconSize: 40,
+      tooltip: 'Next',
+    );
+  }
+
+  IconButton _buildSpeedUpButton(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        var newSpeed = currentSpeed + 0.25;
+        if (newSpeed > 1.5) {
+          newSpeed = 1.0;
+        }
+        currentSpeed = newSpeed;
+        context.read<PlayerBloc>().add(PlayerSetSpeed(newSpeed));
+        //context.read<PlayerBloc>().add(PlayerNext());
+      },
+      icon: const Icon(
+        Icons.speed,
         color: Colors.white,
       ),
       iconSize: 40,
